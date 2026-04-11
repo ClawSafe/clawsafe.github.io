@@ -1,0 +1,58 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Inter, Arial, sans-serif;
+  background: #0a0f18;
+  color: #eef2ff;
+}
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+.hero {
+  padding: 40px 0 24px;
+}
+.eyebrow {
+  color: #78f0b6;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+h1 { font-size: 3rem; line-height: 1.1; margin: 10px 0 16px; }
+.sub { color: #b6bfd7; max-width: 760px; font-size: 1.1rem; }
+.hero-actions { display: flex; gap: 12px; margin-top: 24px; }
+.services, .pricing { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 28px; }
+.card, .price-card {
+  background: #111827;
+  border: 1px solid #243041;
+  border-radius: 18px;
+  padding: 24px;
+}
+.price-card.featured { border-color: #78f0b6; box-shadow: 0 0 0 1px rgba(120,240,182,0.25); }
+.price { font-size: 2.4rem; font-weight: 800; margin: 12px 0; }
+.order.wide { margin-top: 32px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+label { display: block; font-weight: 600; color: #d9e1f6; margin-bottom: 14px; }
+input, select, textarea {
+  width: 100%;
+  margin-top: 8px;
+  background: #0b1220;
+  border: 1px solid #2a3648;
+  border-radius: 12px;
+  color: #eef2ff;
+  padding: 12px 14px;
+}
+.btn {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+.btn-primary { background: #78f0b6; color: #07110c; }
+.btn-secondary { background: transparent; color: #eef2ff; border: 1px solid #324255; }
+.status { margin-top: 14px; color: #b6bfd7; }
+ul { padding-left: 18px; color: #c6d0ea; }

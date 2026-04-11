@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ClawSafe Business Center v2</title>
+    <style>
+      :root {
+        --bg: #0b0d10;
+        --panel: #13171c;
+        --muted: #8b97a7;
+        --text: #eef2f7;
+        --green: #00ff88;
+        --blue: #54a8ff;
+        --amber: #ffb84d;
+        --red: #ff5c7a;
+        --border: rgba(255,255,255,.08);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        background: linear-gradient(180deg, #090b0e, #11161d);
+        color: var(--text);
+      }
+      .wrap { max-width: 1280px; margin: 0 auto; padding: 28px; }
+      .topbar {
+        display: flex; justify-content: space-between; align-items: center; gap: 16px;
+        margin-bottom: 22px;
+      }
+      h1 { margin: 0; font-size: 28px; }
+      .muted { color: var(--muted); }
+      .pill {
+        border: 1px solid var(--border); border-radius: 999px; padding: 8px 12px;
+        background: rgba(255,255,255,.03); font-size: 13px;
+      }
+      .grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; }
+      .panel {
+        background: rgba(19,23,28,.94); border: 1px solid var(--border); border-radius: 18px;
+        padding: 18px; box-shadow: 0 10px 40px rgba(0,0,0,.2);
+      }
+      .panel h2 { margin: 0 0 12px; font-size: 16px; }
+      .metric { font-size: 32px; font-weight: 700; margin-top: 8px; }
+      .metric.green { color: var(--green); }
+      .metric.blue { color: var(--blue); }
+      .metric.amber { color: var(--amber); }
+      .metric.red { color: var(--red); }
+      .list { display: grid; gap: 10px; }
+      .item {
+        background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 12px;
+        padding: 12px;
+      }
+      .tag {
+        display: inline-block; margin-right: 8px; margin-bottom: 6px; padding: 4px 8px;
+        font-size: 12px; border-radius: 999px; background: rgba(84,168,255,.14); color: var(--blue);
+      }
+      .footer { margin-top: 18px; color: var(--muted); font-size: 13px; }
+      @media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+      @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } .wrap { padding: 16px; } }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="topbar">
+        <div>
+          <h1>ClawSafe Business Center v2</h1>
+          <div class="muted">Read-only live operations view built from /api/hq-status</div>
+        </div>
+        <div class="pill" id="updated">Connecting...</div>
+      </div>
+
+      <div class="grid" id="metrics"></div>
+
+      <div class="grid" style="margin-top:16px">
+        <div class="panel">
+          <h2>Proof Wall Snapshot</h2>
+          <div class="list" id="proofWall"></div>
+        </div>
+        <div class="panel">
+          <h2>Latest Audit Requests</h2>
+          <div class="list" id="requests"></div>
+        </div>
+        <div class="panel">
+          <h2>Content / Upload Queue</h2>
+          <div class="list" id="uploads"></div>
+        </div>
+        <div class="panel">
+          <h2>Operational Notes</h2>
+          <div class="list" id="ops"></div>
+        </div>
+      </div>
+
+      <div class="footer">Business Center v2 is intentionally read-only. Remote command execution is not enabled on this page.</div>
+    </div>
+
+    <script>
+      const API = window.__CLAWSAFE_API_BASE__ || '';
+      const metricsEl = document.getElementById('metrics');
+      const proofWallEl = document.getElementById('proofWall');
+      const requestsEl = document.getElementById('requests');
+      const uploadsEl = document.getElementById('uploads');
+      const opsEl = document.getElementById('ops');
+      const updatedEl = document.getElementById('updated');
+
+      const fmt = (v) => (v === null || v === undefined || v === '' ? '—' : v);
+      const card = (title, value, tone, detail='') => `
+        <div class="panel">
+          <div class="muted">${title}</div>
+          <div class="metric ${tone || ''}">${value}</div>
+          <div class="muted" style="margin-top:8px">${detail}</div>
+        </div>`;
+      const item = (html) => `<div class="item">${html}</div>`;
+
+      async function load() {
+        const [hqRes, landingRes] = await Promise.all([
+          fetch(`${API}/api/hq-status`),
+          fetch(`${API}/api/landing-data`).catch(() => null)
+        ]);
+        const hq = await hqRes.json();
+        const landing = landingRes && landingRes.ok ? await landingRes.json() : {};
+
+        const channels = hq.channels || {};
+        const onlineChannels = Object.values(channels).filter(v => v === true || (v && v.up === true)).length;
+        const requests = hq.requests || [];
+        const uploads = hq.uploads || {};
+        const revenue = hq.revenue || {};
+        const perf = hq.performance || {};
+        const proof = landing.proof_wall || [];
+        const scanTotals = landing.scan_totals || {};
+
+        metricsEl.innerHTML = [
+          card('Revenue tracked', `$${fmt(revenue.total || 0)}`, 'green', `${fmt(revenue.orders || 0)} orders`),
+          card('Audit requests', fmt(requests.length), 'blue', 'Stored in backend queue'),
+          card('Skills scanned', fmt(scanTotals.skills || scanTotals.total_skills || 44), 'amber', `${fmt(scanTotals.findings || landing.proof_metrics?.[0]?.value || 'live')} findings`),
+          card('HQ channels up', fmt(onlineChannels), 'green', 'Based on /api/hq-status'),
+          card('Twitter queue', fmt(perf.twitter_queue || 0), '', 'Next social items pending'),
+          card('YouTube videos online', fmt(perf.youtube_videos_online || 0), '', 'Visible from live performance payload'),
+          card('Ready uploads', fmt((uploads.ready_items || []).length), '', 'Current staged files'),
+          card('Last update', fmt(hq.updated_at || landing.updated_at || 'live'), '', 'Backend timestamp')
+        ].join('');
+
+        proofWallEl.innerHTML = (proof.slice(0, 6).map(p => item(`
+          <div><span class="tag">${fmt(p.risk || 'review')}</span><strong>${fmt(p.target)}</strong></div>
+          <div class="muted">${fmt(p.summary || p.top_finding || 'No summary')}</div>
+        `)).join('')) || item('<div class="muted">No proof-wall cards available.</div>');
+
+        requestsEl.innerHTML = (requests.slice(0, 6).map(r => item(`
+          <div><strong>${fmt(r.email)}</strong></div>
+          <div class="muted">${fmt(r.repo)}</div>
+          <div class="muted">status: ${fmt(r.status || 'received')}</div>
+        `)).join('')) || item('<div class="muted">No audit requests stored.</div>');
+
+        uploadsEl.innerHTML = [
+          item(`<div><strong>Ready items</strong></div><div class="muted">${(uploads.ready_items || []).join(', ') || 'none'}</div>`),
+          item(`<div><strong>Staged items</strong></div><div class="muted">${(uploads.staged_items || []).join(', ') || 'none'}</div>`),
+          item(`<div><strong>Next candidate</strong></div><div class="muted">${fmt(uploads.next_item || 'none')}</div>`)
+        ].join('');
+
+        opsEl.innerHTML = [
+          item('<div><strong>Mode</strong></div><div class="muted">Read-only business center. No remote command execution enabled.</div>'),
+          item(`<div><strong>Proof base</strong></div><div class="muted">Public report + proof-wall summary + live HQ payloads.</div>`),
+          item(`<div><strong>Focus</strong></div><div class="muted">Revenue, queue health, proof assets, and inbound readiness.</div>`)
+        ].join('');
+
+        updatedEl.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+      }
+
+      load();
+      setInterval(load, 15000);
+    </script>
+  </body>
+</html>

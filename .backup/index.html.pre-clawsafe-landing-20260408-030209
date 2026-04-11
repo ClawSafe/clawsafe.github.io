@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw Security Services</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <p class="eyebrow">OpenClaw Security + Setup Services</p>
+      <h1>Secure your OpenClaw setup before it breaks trust</h1>
+      <p class="sub">Paid audits and setup help for builders who want a safer OpenClaw environment, clearer configs, and faster release confidence.</p>
+      <div class="hero-actions">
+        <a href="#pricing" class="btn btn-primary">View packages</a>
+        <a href="#order" class="btn btn-secondary">Order now</a>
+      </div>
+    </section>
+
+    <section class="services">
+      <div class="card">
+        <h2>Security Audit</h2>
+        <p>Static audit of skill packages, installer flows, risky file-access patterns, README mismatch, release contamination, and beta-readiness.</p>
+      </div>
+      <div class="card">
+        <h2>Setup Service</h2>
+        <p>OpenClaw setup review, config cleanup, control UI hardening, auth/profile sanity checks, and guided remediation planning.</p>
+      </div>
+    </section>
+
+    <section id="pricing" class="pricing">
+      <div class="price-card">
+        <h3>Basic</h3>
+        <div class="price">$39</div>
+        <ul>
+          <li>Core setup or audit pass</li>
+          <li>One focused issue area</li>
+          <li>Delivery report</li>
+        </ul>
+      </div>
+      <div class="price-card featured">
+        <h3>Standard</h3>
+        <div class="price">$79</div>
+        <ul>
+          <li>Full hardening or deeper audit</li>
+          <li>Up to 3 skill checks</li>
+          <li>Delivery report + recommendations</li>
+        </ul>
+      </div>
+      <div class="price-card">
+        <h3>Premium</h3>
+        <div class="price">$149</div>
+        <ul>
+          <li>Deep QA / release-readiness review</li>
+          <li>Expanded recommendations</li>
+          <li>Priority handling</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="order" class="order card wide">
+      <h2>Order Form</h2>
+      <form id="order-form">
+        <div class="grid">
+          <label>Email
+            <input type="email" name="email" required />
+          </label>
+          <label>OpenClaw Version
+            <input type="text" name="openclaw_version" placeholder="2026.4.5" required />
+          </label>
+          <label>OS
+            <select name="os" required>
+              <option value="ubuntu">Ubuntu / Linux</option>
+              <option value="macos">macOS</option>
+              <option value="windows">Windows</option>
+              <option value="vps">VPS / Server</option>
+            </select>
+          </label>
+          <label>Service Type
+            <select name="service_type" required>
+              <option value="audit">Security Audit</option>
+              <option value="setup">Setup Service</option>
+            </select>
+          </label>
+          <label>Package
+            <select name="package" required>
+              <option value="basic">Basic</option>
+              <option value="standard" selected>Standard</option>
+              <option value="premium">Premium</option>
+            </select>
+          </label>
+        </div>
+        <label>What do you need?
+          <textarea name="needs" rows="6" placeholder="Describe your OpenClaw setup, pain points, risks, or what you want fixed." required></textarea>
+        </label>
+        <button class="btn btn-primary" type="submit">Continue to Stripe Checkout</button>
+        <p id="status" class="status"></p>
+      </form>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
