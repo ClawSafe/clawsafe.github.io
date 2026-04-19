@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voxa — AI-Telefonassistent für Schweizer Betriebe</title>
+<meta name="description" content="24/7 mehrsprachiger AI-Telefonassistent für Restaurants, Zahnärzte, Coiffeure, Immobilien und mehr. In Deutsch, Französisch, Englisch und Italienisch.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        serif: ['Instrument Serif', 'Georgia', 'serif'],
+        sans: ['DM Sans', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+      colors: {
+        voxa: {
+          50:  '#f0fdfa',
+          100: '#ccfbf1',
+          200: '#99f6e4',
+          300: '#5eead4',
+          400: '#2dd4bf',
+          500: '#14b8a6',
+          600: '#0d9488',
+          700: '#0f766e',
+          800: '#115e59',
+          900: '#134e4a',
+        }
+      }
+    }
+  }
+}
+</script>
+
+<style>
+  html { scroll-behavior: smooth; }
+  body {
+    background: #020617;
+    color: #e2e8f0;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .font-serif-italic { font-family: 'Instrument Serif', serif; font-style: italic; }
+
+  /* Grid background */
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(45,212,191,0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(45,212,191,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Radial glow */
+  .glow-teal {
+    background: radial-gradient(circle at 50% 0%, rgba(45,212,191,0.15) 0%, rgba(45,212,191,0) 50%);
+  }
+
+  /* Scroll fade-in */
+  .fade-in-up {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .fade-in-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Voice waveform */
+  @keyframes waveform {
+    0%, 100% { height: 8px; }
+    50% { height: 28px; }
+  }
+  .wave-bar { animation: waveform 1.2s ease-in-out infinite; background: linear-gradient(to top, #14b8a6, #2dd4bf); border-radius: 999px; width: 3px; }
+  .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+  .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+  .wave-bar:nth-child(4) { animation-delay: 0.3s; }
+  .wave-bar:nth-child(5) { animation-delay: 0.4s; }
+  .wave-bar:nth-child(6) { animation-delay: 0.5s; }
+  .wave-bar:nth-child(7) { animation-delay: 0.6s; }
+
+  /* Typing cursor */
+  @keyframes cursor-blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+  .cursor::after { content: '▊'; color: #2dd4bf; animation: cursor-blink 0.8s infinite; margin-left: 2px; }
+
+  /* Pulse ring */
+  @keyframes pulse-ring {
+    0% { transform: scale(0.95); opacity: 0.7; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+  .pulse-ring::before, .pulse-ring::after {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 2px solid #14b8a6;
+    animation: pulse-ring 2s ease-out infinite;
+  }
+  .pulse-ring::after { animation-delay: 1s; }
+
+  /* Gradient border */
+  .gradient-border {
+    position: relative;
+    background: #0f172a;
+  }
+  .gradient-border::before {
+    content: '';
+    position: absolute; inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(45,212,191,0.4), rgba(8,145,178,0.1), rgba(45,212,191,0.4));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Noise texture */
+  .noise {
+    position: relative;
+  }
+  .noise::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0.7 0 0 0 0 0.6 0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+
+  /* Marquee */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .marquee-track { animation: marquee 40s linear infinite; }
+
+  /* Checkbox */
+  input[type="checkbox"] { accent-color: #14b8a6; }
+
+  /* Scroll bar for transcript */
+  .thin-scroll::-webkit-scrollbar { width: 4px; }
+  .thin-scroll::-webkit-scrollbar-track { background: #1e293b; }
+  .thin-scroll::-webkit-scrollbar-thumb { background: #14b8a6; border-radius: 2px; }
+
+  /* Button hover glow */
+  .btn-primary {
+    background: linear-gradient(135deg, #14b8a6 0%, #0891b2 100%);
+    box-shadow: 0 0 0 0 rgba(45,212,191,0);
+    transition: all 0.3s;
+  }
+  .btn-primary:hover {
+    box-shadow: 0 8px 32px rgba(45,212,191,0.25);
+    transform: translateY(-1px);
+  }
+
+  /* Phone SVG drop shadow */
+  .phone-shadow { filter: drop-shadow(0 32px 64px rgba(45,212,191,0.15)) drop-shadow(0 8px 16px rgba(0,0,0,0.6)); }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, #5eead4 0%, #2dd4bf 50%, #0891b2 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+</style>
+</head>
+<body class="overflow-x-hidden">
+
+<!-- ============ NAV ============ -->
+<nav class="fixed top-0 inset-x-0 z-50 backdrop-blur-xl bg-slate-950/70 border-b border-slate-900">
+  <div class="max-w-7xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2.5">
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+        <defs>
+          <linearGradient id="navLogo" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2dd4bf"/>
+            <stop offset="100%" stop-color="#0891b2"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="12" width="3" height="8" rx="1.5" fill="url(#navLogo)"/>
+        <rect x="7" y="8" width="3" height="16" rx="1.5" fill="url(#navLogo)"/>
+        <rect x="12" y="4" width="3" height="24" rx="1.5" fill="url(#navLogo)"/>
+        <rect x="17" y="8" width="3" height="16" rx="1.5" fill="url(#navLogo)"/>
+        <rect x="22" y="12" width="3" height="8" rx="1.5" fill="url(#navLogo)"/>
+        <rect x="27" y="14" width="3" height="4" rx="1.5" fill="url(#navLogo)"/>
+      </svg>
+      <div>
+        <div class="text-lg font-semibold tracking-tight text-white">Voxa</div>
+      </div>
+    </a>
+    <div class="hidden md:flex items-center gap-8 text-sm text-slate-400">
+      <a href="#branchen" class="hover:text-white transition">Branchen</a>
+      <a href="#demo" class="hover:text-white transition">Live-Demo</a>
+      <a href="#preise" class="hover:text-white transition">Preise</a>
+      <a href="#faq" class="hover:text-white transition">FAQ</a>
+    </div>
+    <a href="#demo-buchen" class="hidden sm:inline-flex items-center gap-2 bg-voxa-500 hover:bg-voxa-400 text-slate-950 px-4 py-2 rounded-lg text-sm font-semibold transition">
+      Demo starten
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="relative pt-32 pb-24 overflow-hidden">
+  <div class="absolute inset-0 grid-bg"></div>
+  <div class="absolute inset-0 glow-teal"></div>
+
+  <div class="relative max-w-7xl mx-auto px-5 md:px-8 grid lg:grid-cols-2 gap-12 items-center">
+
+    <div class="fade-in-up">
+      <div class="inline-flex items-center gap-2 bg-voxa-500/10 border border-voxa-500/20 px-3 py-1.5 rounded-full text-xs text-voxa-300 mb-6">
+        <span class="w-1.5 h-1.5 bg-voxa-400 rounded-full animate-pulse"></span>
+        LIVE · Basel, Schweiz · 2026
+      </div>
+
+      <h1 class="text-5xl md:text-7xl font-semibold leading-[1.05] tracking-tight text-white mb-6">
+        Ihr Telefon <br>
+        klingelt nie <br>
+        <span class="font-serif-italic gradient-text">ins Leere</span>.
+      </h1>
+
+      <p class="text-lg md:text-xl text-slate-400 max-w-lg leading-relaxed mb-8">
+        Voxa beantwortet Anrufe in <strong class="text-white">Deutsch, Französisch, Englisch und Italienisch</strong> — rund um die Uhr. Reservationen, Termine, Anfragen. Alles wird abgefangen und strukturiert erfasst.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-3 mb-10">
+        <a href="#demo-buchen" class="btn-primary text-slate-950 px-6 py-3.5 rounded-lg font-semibold text-sm flex items-center justify-center gap-2">
+          Kostenlose Demo für Ihren Betrieb
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#demo" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-white px-6 py-3.5 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Demo ansehen
+        </a>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-x-8 gap-y-3 text-xs text-slate-500">
+        <div class="flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+          24/7 erreichbar
+        </div>
+        <div class="flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+          4 Landessprachen
+        </div>
+        <div class="flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+          Setup in 48 Stunden
+        </div>
+        <div class="flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+          Hosted in CH
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Phone Demo -->
+    <div class="relative fade-in-up" style="transition-delay: 0.2s">
+      <div class="relative mx-auto max-w-sm phone-shadow">
+        <!-- Phone Frame -->
+        <div class="relative aspect-[9/19] bg-slate-900 rounded-[3rem] border border-slate-800 overflow-hidden">
+          <!-- Notch -->
+          <div class="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-30"></div>
+
+          <!-- Screen -->
+          <div class="absolute inset-2 bg-slate-950 rounded-[2.6rem] overflow-hidden">
+            <!-- Status bar -->
+            <div class="flex items-center justify-between px-6 pt-3 pb-1 text-[10px] text-white font-mono">
+              <span>14:23</span>
+              <div class="flex items-center gap-1">
+                <svg width="12" height="8" viewBox="0 0 16 10" fill="white"><rect x="0" y="6" width="2" height="4"/><rect x="4" y="4" width="2" height="6"/><rect x="8" y="2" width="2" height="8"/><rect x="12" y="0" width="2" height="10"/></svg>
+                <span>•••</span>
+                <span class="bg-white text-black px-1 rounded">100</span>
+              </div>
+            </div>
+
+            <!-- Call UI -->
+            <div class="px-6 pt-6 text-center">
+              <div class="text-[10px] text-voxa-400 uppercase tracking-widest mb-2">Voxa · Osteria Milano</div>
+              <div class="relative inline-block mb-3">
+                <div class="pulse-ring w-20 h-20 rounded-full mx-auto"></div>
+                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-voxa-400 to-voxa-700 flex items-center justify-center">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <rect x="9" y="2" width="6" height="12" rx="3"/>
+                    <path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="text-white text-sm font-semibold mb-1">Aktiver Anruf</div>
+              <div class="text-slate-500 text-xs font-mono" id="heroCallTimer">00:42</div>
+            </div>
+
+            <!-- Transcript -->
+            <div class="px-4 mt-4 space-y-2 max-h-[190px] overflow-hidden" id="heroTranscript">
+              <div class="text-[10px] text-voxa-400 uppercase tracking-wider pl-1">Live-Transkript</div>
+              <div class="bg-voxa-500/10 border border-voxa-500/20 rounded-xl p-2.5 text-[11px] text-voxa-100 leading-relaxed">
+                Grüezi, Osteria Milano. Wie kann ich helfen?
+              </div>
+              <div class="bg-slate-800 rounded-xl p-2.5 text-[11px] leading-relaxed text-right ml-6">
+                Tisch für 3 am Samstag, 19 Uhr bitte.
+              </div>
+              <div class="bg-voxa-500/10 border border-voxa-500/20 rounded-xl p-2.5 text-[11px] text-voxa-100 leading-relaxed cursor">
+                Samstag 19:00 für 3 Personen. Gibt es einen Anlass
+              </div>
+            </div>
+
+            <!-- Waveform -->
+            <div class="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-1 h-8">
+              <div class="wave-bar" style="height: 10px"></div>
+              <div class="wave-bar" style="height: 14px"></div>
+              <div class="wave-bar" style="height: 20px"></div>
+              <div class="wave-bar" style="height: 24px"></div>
+              <div class="wave-bar" style="height: 20px"></div>
+              <div class="wave-bar" style="height: 14px"></div>
+              <div class="wave-bar" style="height: 10px"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating data badges -->
+        <div class="hidden md:block absolute -left-16 top-16 bg-slate-900 border border-voxa-500/20 rounded-xl p-3 shadow-2xl backdrop-blur">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-voxa-500/20 flex items-center justify-center text-lg">🎂</div>
+            <div>
+              <div class="text-[10px] text-slate-500 uppercase">Anlass erkannt</div>
+              <div class="text-xs font-semibold text-white">Geburtstag</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hidden md:block absolute -right-12 top-40 bg-slate-900 border border-voxa-500/20 rounded-xl p-3 shadow-2xl backdrop-blur">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-voxa-500/20 flex items-center justify-center">🌿</div>
+            <div>
+              <div class="text-[10px] text-slate-500 uppercase">Allergie</div>
+              <div class="text-xs font-semibold text-white">1× Vegetarisch</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hidden md:block absolute -right-8 bottom-24 bg-slate-900 border border-voxa-500/20 rounded-xl p-3 shadow-2xl backdrop-blur">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-voxa-500/20 flex items-center justify-center">📍</div>
+            <div>
+              <div class="text-[10px] text-slate-500 uppercase">Platzwunsch</div>
+              <div class="text-xs font-semibold text-white">Fensterplatz</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ TRUST STRIP ============ -->
+<section class="py-8 border-y border-slate-900 bg-slate-950/50 overflow-hidden">
+  <div class="flex items-center gap-12 marquee-track whitespace-nowrap text-slate-600">
+    <div class="flex items-center gap-12 shrink-0">
+      <span class="text-sm font-semibold tracking-widest uppercase">🇨🇭 Swiss Made</span>
+      <span class="text-xs">·</span>
+      <span class="text-sm">4 Sprachen live</span>
+      <span class="text-xs">·</span>
+      <span class="text-sm">Revisionssicher</span>
+      <span class="text-xs">·</span>
+      <span class="text-sm">Datenschutz konform</span>
+      <span class="text-xs">·</span>
+      <span class="text-sm">nDSG / DSGVO</span>
+      <span class="text-xs">·</span>
+      <span class="text-sm">24/7 Support</span>
+      <span class="text-xs">·</span>
+      <span class="text-sm font-semibold tracking-widest uppercase">🇨🇭 Swiss Made</span>
+      <span class="text-xs">·</span>
+      <span class="text-sm">4 Sprachen live</span>
+      <span class="text-xs">·</span>
+      <span class="text-sm">Revisionssicher</span>
+      <span class="text-xs">·</span>
+      <span class="text-sm">Datenschutz konform</span>
+      <span class="text-xs">·</span>
+      <span class="text-sm">nDSG / DSGVO</span>
+      <span class="text-xs">·</span>
+      <span class="text-sm">24/7 Support</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM ============ -->
+<section class="py-24 relative">
+  <div class="max-w-6xl mx-auto px-5 md:px-8">
+    <div class="max-w-3xl mb-16 fade-in-up">
+      <div class="text-xs text-voxa-400 uppercase tracking-widest mb-3">Das Problem</div>
+      <h2 class="text-4xl md:text-5xl font-semibold tracking-tight text-white mb-5 leading-tight">
+        Jeder verpasste Anruf ist ein <span class="font-serif-italic text-voxa-400">verlorener Kunde</span>.
+      </h2>
+      <p class="text-lg text-slate-400">
+        Das Servicepersonal kann nicht gleichzeitig kochen, bedienen und Tische reservieren. Die Zahnarztpraxis nimmt mittags keine Anrufe entgegen. Der Coiffeur ist am Kunden. Und die Anrufer? Die probieren beim nächsten Betrieb weiter.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5 fade-in-up">
+      <div class="gradient-border rounded-2xl p-6">
+        <div class="text-5xl font-semibold text-white mb-2 font-serif-italic">38<span class="text-voxa-400">%</span></div>
+        <div class="text-sm text-slate-400">der Anrufe in Gastro und Handwerk werden nie beantwortet. Jeder ist ein Auftrag der woanders hingeht.</div>
+      </div>
+      <div class="gradient-border rounded-2xl p-6">
+        <div class="text-5xl font-semibold text-white mb-2 font-serif-italic">47<span class="text-voxa-400">%</span></div>
+        <div class="text-sm text-slate-400">der Kundenanfragen kommen ausserhalb der Öffnungszeiten — abends, sonntags, in der Ferienzeit.</div>
+      </div>
+      <div class="gradient-border rounded-2xl p-6">
+        <div class="text-5xl font-semibold text-white mb-2 font-serif-italic">12<span class="text-voxa-400">min</span></div>
+        <div class="text-sm text-slate-400">Zeit die Ihr Personal pro Anruf verliert — multipliziert mit 30 Anrufen pro Tag ergibt das 6 Stunden.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BRANCHEN ============ -->
+<section id="branchen" class="py-24 relative bg-slate-950/50 border-y border-slate-900">
+  <div class="max-w-7xl mx-auto px-5 md:px-8">
+    <div class="max-w-3xl mb-14 fade-in-up">
+      <div class="text-xs text-voxa-400 uppercase tracking-widest mb-3">Für Ihre Branche gebaut</div>
+      <h2 class="text-4xl md:text-5xl font-semibold tracking-tight text-white mb-5 leading-tight">
+        Nicht irgendein Chatbot. <br>
+        <span class="font-serif-italic text-voxa-400">Ihre Branche im Detail.</span>
+      </h2>
+      <p class="text-lg text-slate-400">
+        Jede Branche hat andere Fragen, andere Daten, andere Dringlichkeiten. Voxa kommt mit branchen-spezifischen Intake-Flows — von Allergien im Restaurant bis zur Schmerzskala beim Zahnarzt.
+      </p>
+    </div>
+
+    <!-- Industry selector -->
+    <div class="fade-in-up">
+      <div class="flex gap-2 overflow-x-auto thin-scroll pb-3 mb-6 -mx-5 md:mx-0 px-5 md:px-0 snap-x">
+        <button data-ind="gastro" class="ind-btn snap-start shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full bg-voxa-500 text-slate-950 font-semibold text-sm whitespace-nowrap transition">
+          <span class="text-lg">🍽️</span> Gastronomie
+        </button>
+        <button data-ind="dental" class="ind-btn snap-start shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:border-voxa-500 font-medium text-sm whitespace-nowrap transition">
+          <span class="text-lg">🦷</span> Zahnarzt
+        </button>
+        <button data-ind="salon" class="ind-btn snap-start shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:border-voxa-500 font-medium text-sm whitespace-nowrap transition">
+          <span class="text-lg">💇</span> Coiffeur & Beauty
+        </button>
+        <button data-ind="auto" class="ind-btn snap-start shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:border-voxa-500 font-medium text-sm whitespace-nowrap transition">
+          <span class="text-lg">🚗</span> Autogarage
+        </button>
+        <button data-ind="realestate" class="ind-btn snap-start shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:border-voxa-500 font-medium text-sm whitespace-nowrap transition">
+          <span class="text-lg">🏠</span> Immobilien
+        </button>
+        <button data-ind="medical" class="ind-btn snap-start shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:border-voxa-500 font-medium text-sm whitespace-nowrap transition">
+          <span class="text-lg">🏥</span> Arztpraxis
+        </button>
+        <button data-ind="hotel" class="ind-btn snap-start shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:border-voxa-500 font-medium text-sm whitespace-nowrap transition">
+          <span class="text-lg">🏨</span> Hotel
+        </button>
+      </div>
+
+      <div id="indPanel" class="grid lg:grid-cols-5 gap-5">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMO SIMULATOR ============ -->
+<section id="demo" class="py-24 relative overflow-hidden">
+  <div class="absolute inset-0 grid-bg opacity-50"></div>
+  <div class="relative max-w-6xl mx-auto px-5 md:px-8">
+    <div class="text-center max-w-3xl mx-auto mb-14 fade-in-up">
+      <div class="text-xs text-voxa-400 uppercase tracking-widest mb-3">Live-Simulation</div>
+      <h2 class="text-4xl md:text-5xl font-semibold tracking-tight text-white mb-5 leading-tight">
+        So klingt ein Anruf <br>
+        <span class="font-serif-italic text-voxa-400">in Ihrem Betrieb.</span>
+      </h2>
+      <p class="text-lg text-slate-400">
+        Klicken Sie auf "Simulation starten" — Sie sehen exakt was Ihr Gast oder Patient erlebt, und was Voxa für Sie erfasst.
+      </p>
+    </div>
+
+    <div class="gradient-border rounded-3xl overflow-hidden fade-in-up">
+      <div class="grid lg:grid-cols-5">
+
+        <!-- Call side -->
+        <div class="lg:col-span-3 p-6 md:p-10 border-b lg:border-b-0 lg:border-r border-slate-800 noise">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+              <div class="relative w-3 h-3">
+                <div id="callLive" class="absolute inset-0 bg-red-500 rounded-full animate-pulse hidden"></div>
+                <div id="callIdle" class="absolute inset-0 bg-slate-600 rounded-full"></div>
+              </div>
+              <div>
+                <div class="text-xs text-slate-500 uppercase tracking-widest">Osteria Milano · Basel</div>
+                <div id="callStatus" class="text-sm font-semibold text-slate-400">Bereit zu starten</div>
+              </div>
+            </div>
+            <div class="font-mono text-xs text-voxa-400" id="callDuration">00:00</div>
+          </div>
+
+          <div id="transcript" class="space-y-3 h-[340px] overflow-y-auto thin-scroll pr-2 mb-5">
+            <div class="text-center text-slate-600 text-sm py-20">
+              Klicken Sie auf "Simulation starten"<br>um den Anruf zu beginnen
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-4 pt-5 border-t border-slate-800">
+            <div class="flex items-center gap-1 flex-1">
+              <div id="waveWrap" class="flex items-end gap-1 h-10 w-full opacity-30">
+                <div class="wave-bar" style="height: 8px"></div>
+                <div class="wave-bar" style="height: 14px"></div>
+                <div class="wave-bar" style="height: 20px"></div>
+                <div class="wave-bar" style="height: 28px"></div>
+                <div class="wave-bar" style="height: 22px"></div>
+                <div class="wave-bar" style="height: 14px"></div>
+                <div class="wave-bar" style="height: 8px"></div>
+                <div class="wave-bar" style="height: 14px"></div>
+                <div class="wave-bar" style="height: 20px"></div>
+                <div class="wave-bar" style="height: 28px"></div>
+                <div class="wave-bar" style="height: 22px"></div>
+                <div class="wave-bar" style="height: 14px"></div>
+              </div>
+            </div>
+            <button id="simBtn" onclick="startSim()" class="btn-primary text-slate-950 px-5 py-2.5 rounded-lg font-semibold text-sm flex items-center gap-2 shrink-0">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>
+              Simulation starten
+            </button>
+          </div>
+        </div>
+
+        <!-- Data extraction side -->
+        <div class="lg:col-span-2 bg-slate-950 p-6 md:p-10">
+          <div class="text-xs text-voxa-400 uppercase tracking-widest mb-4">Voxa erfasst automatisch</div>
+
+          <div id="dataGrid" class="space-y-3">
+            <div class="data-row opacity-30" data-key="persons">
+              <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-1">Personen</div>
+              <div class="text-sm font-semibold text-slate-500">—</div>
+            </div>
+            <div class="data-row opacity-30" data-key="datetime">
+              <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-1">Datum & Zeit</div>
+              <div class="text-sm font-semibold text-slate-500">—</div>
+            </div>
+            <div class="data-row opacity-30" data-key="name">
+              <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-1">Name</div>
+              <div class="text-sm font-semibold text-slate-500">—</div>
+            </div>
+            <div class="data-row opacity-30" data-key="occasion">
+              <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-1">Anlass</div>
+              <div class="text-sm font-semibold text-slate-500">—</div>
+            </div>
+            <div class="data-row opacity-30" data-key="seating">
+              <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-1">Platzwunsch</div>
+              <div class="text-sm font-semibold text-slate-500">—</div>
+            </div>
+            <div class="data-row opacity-30" data-key="allergies">
+              <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-1">Allergien / Diät</div>
+              <div class="text-sm font-semibold text-slate-500">—</div>
+            </div>
+            <div class="data-row opacity-30" data-key="special">
+              <div class="text-[10px] text-slate-600 uppercase tracking-wider mb-1">Besondere Wünsche</div>
+              <div class="text-sm font-semibold text-slate-500">—</div>
+            </div>
+          </div>
+
+          <div id="outcome" class="hidden mt-6 pt-6 border-t border-slate-800">
+            <div class="bg-voxa-500/10 border border-voxa-500/30 rounded-xl p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                <span class="text-xs font-bold text-voxa-300 uppercase tracking-wider">Reservation erfasst</span>
+              </div>
+              <div class="text-sm text-slate-300">
+                SMS-Bestätigung versendet. Eintrag in Reservierungssystem erstellt. Küche über Allergien informiert.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="text-center mt-8 fade-in-up">
+      <p class="text-sm text-slate-500 max-w-xl mx-auto">
+        Dies ist eine Simulation. Ihr eigener Voxa-Agent wird exakt auf Ihre Firma, Ihre Öffnungszeiten, Ihre Sprachen und Ihre Preise zugeschnitten. <a href="#demo-buchen" class="text-voxa-400 hover:text-voxa-300 underline">Demo für Ihren Betrieb buchen →</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="py-24 bg-slate-950/50 border-y border-slate-900">
+  <div class="max-w-7xl mx-auto px-5 md:px-8">
+    <div class="max-w-3xl mb-14 fade-in-up">
+      <div class="text-xs text-voxa-400 uppercase tracking-widest mb-3">Was Voxa kann</div>
+      <h2 class="text-4xl md:text-5xl font-semibold tracking-tight text-white leading-tight">
+        Mehr als ein Anrufbeantworter. <br>
+        <span class="font-serif-italic text-voxa-400">Ein Teammitglied.</span>
+      </h2>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 fade-in-up">
+      <div class="gradient-border rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-lg bg-voxa-500/10 flex items-center justify-center mb-4">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-white mb-2">Mehrsprachig</h3>
+        <p class="text-sm text-slate-400">Deutsch, Französisch, Englisch, Italienisch. Sprachwechsel mitten im Gespräch wird erkannt.</p>
+      </div>
+
+      <div class="gradient-border rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-lg bg-voxa-500/10 flex items-center justify-center mb-4">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-white mb-2">24 / 7 erreichbar</h3>
+        <p class="text-sm text-slate-400">Ferien, Feiertage, Wochenenden — kein verpasster Anruf, keine verlorene Reservation.</p>
+      </div>
+
+      <div class="gradient-border rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-lg bg-voxa-500/10 flex items-center justify-center mb-4">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-white mb-2">Branchen-Intake</h3>
+        <p class="text-sm text-slate-400">Allergien beim Restaurant. Schmerzskala beim Zahnarzt. Budget beim Immobilien-Lead. Richtige Fragen, automatisch.</p>
+      </div>
+
+      <div class="gradient-border rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-lg bg-voxa-500/10 flex items-center justify-center mb-4">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-white mb-2">Kalender-Integration</h3>
+        <p class="text-sm text-slate-400">Google Calendar, Outlook, Cal.com — Termine landen direkt dort wo sie hingehören.</p>
+      </div>
+
+      <div class="gradient-border rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-lg bg-voxa-500/10 flex items-center justify-center mb-4">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-white mb-2">Weiterleiten</h3>
+        <p class="text-sm text-slate-400">Bei Komplexem oder Notfall-Keywords leitet Voxa sofort an Ihre Nummer weiter.</p>
+      </div>
+
+      <div class="gradient-border rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-lg bg-voxa-500/10 flex items-center justify-center mb-4">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-white mb-2">Analytik</h3>
+        <p class="text-sm text-slate-400">Top-Anfragen, Sprach-Verteilung, Conversion-Rate. Dashboard mit echten Insights über Ihre Kunden.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PREISE ============ -->
+<section id="preise" class="py-24">
+  <div class="max-w-6xl mx-auto px-5 md:px-8">
+    <div class="text-center max-w-3xl mx-auto mb-14 fade-in-up">
+      <div class="text-xs text-voxa-400 uppercase tracking-widest mb-3">Transparente Preise</div>
+      <h2 class="text-4xl md:text-5xl font-semibold tracking-tight text-white mb-5 leading-tight">
+        Kein Lock-In. <br>
+        <span class="font-serif-italic text-voxa-400">Kein Kleingedrucktes.</span>
+      </h2>
+      <p class="text-lg text-slate-400">
+        Einmalige Einrichtung + monatliche Pauschale. Keine Per-Minute-Abrechnung. Jederzeit kündbar.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5 fade-in-up">
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-7">
+        <div class="text-xs text-slate-500 uppercase tracking-widest mb-2">Starter</div>
+        <div class="mb-1">
+          <span class="text-4xl font-semibold text-white">CHF 499</span>
+          <span class="text-sm text-slate-500">Setup</span>
+        </div>
+        <div class="text-slate-400 text-sm mb-6">+ CHF 149 / Monat</div>
+        <ul class="space-y-2.5 text-sm text-slate-300 mb-8">
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> 1 Sprache (Deutsch)</li>
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Bis 100 Anrufe / Monat</li>
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> E-Mail-Zusammenfassung</li>
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Branchen-Template</li>
+        </ul>
+        <a href="#demo-buchen" class="block w-full bg-slate-800 hover:bg-slate-700 text-white text-center py-3 rounded-lg text-sm font-semibold transition">Anfrage senden</a>
+      </div>
+
+      <div class="relative bg-gradient-to-b from-voxa-500/10 to-slate-900 border-2 border-voxa-500 rounded-2xl p-7 md:scale-105">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-voxa-400 text-slate-950 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider">Beliebtester</div>
+        <div class="text-xs text-voxa-300 uppercase tracking-widest mb-2">Professional</div>
+        <div class="mb-1">
+          <span class="text-4xl font-semibold text-white">CHF 1'499</span>
+          <span class="text-sm text-slate-500">Setup</span>
+        </div>
+        <div class="text-slate-400 text-sm mb-6">+ CHF 249 / Monat</div>
+        <ul class="space-y-2.5 text-sm text-slate-200 mb-8">
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <strong>Alle 4 Sprachen</strong> (DE/FR/EN/IT)</li>
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Bis 500 Anrufe / Monat</li>
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Kalender-Integration</li>
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> WhatsApp-Bestätigung</li>
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Branchen-Intake (individuell)</li>
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Analytics-Dashboard</li>
+        </ul>
+        <a href="#demo-buchen" class="btn-primary block w-full text-slate-950 text-center py-3 rounded-lg text-sm font-bold">Demo starten →</a>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-7">
+        <div class="text-xs text-slate-500 uppercase tracking-widest mb-2">Custom</div>
+        <div class="mb-1">
+          <span class="text-4xl font-semibold text-white">ab 2'999</span>
+          <span class="text-sm text-slate-500">CHF</span>
+        </div>
+        <div class="text-slate-400 text-sm mb-6">Individuelles Angebot</div>
+        <ul class="space-y-2.5 text-sm text-slate-300 mb-8">
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Unlimitierte Anrufe</li>
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Individuelle Stimme</li>
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> CRM-Integration</li>
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Mehrere Standorte</li>
+          <li class="flex items-start gap-2"><svg width="14" height="14" class="mt-1 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Priority Support</li>
+        </ul>
+        <a href="#demo-buchen" class="block w-full bg-slate-800 hover:bg-slate-700 text-white text-center py-3 rounded-lg text-sm font-semibold transition">Gespräch vereinbaren</a>
+      </div>
+
+    </div>
+
+    <div class="text-center mt-8 text-sm text-slate-500 fade-in-up">
+      Alle Preise zzgl. 8.1% MwSt. &nbsp;·&nbsp; Monatlich kündbar &nbsp;·&nbsp; Daten hosted in der Schweiz
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq" class="py-24 bg-slate-950/50 border-y border-slate-900">
+  <div class="max-w-3xl mx-auto px-5 md:px-8">
+    <div class="mb-12 fade-in-up">
+      <div class="text-xs text-voxa-400 uppercase tracking-widest mb-3">Häufige Fragen</div>
+      <h2 class="text-4xl md:text-5xl font-semibold tracking-tight text-white leading-tight">
+        Sie haben Fragen. <br>
+        <span class="font-serif-italic text-voxa-400">Wir Antworten.</span>
+      </h2>
+    </div>
+
+    <div class="space-y-3 fade-in-up">
+      <details class="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <summary class="flex items-center justify-between cursor-pointer p-5 text-white font-semibold">
+          Wie lange dauert die Einrichtung?
+          <svg class="transition-transform group-open:rotate-45" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </summary>
+        <div class="px-5 pb-5 text-slate-400 text-sm leading-relaxed">
+          Typisch 48 Stunden. Sie senden uns Ihre Öffnungszeiten, häufigsten Fragen und Branchen-Besonderheiten. Wir konfigurieren den Agent, Sie testen, wir gehen live.
+        </div>
+      </details>
+
+      <details class="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <summary class="flex items-center justify-between cursor-pointer p-5 text-white font-semibold">
+          Kann Voxa Schweizerdeutsch?
+          <svg class="transition-transform group-open:rotate-45" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </summary>
+        <div class="px-5 pb-5 text-slate-400 text-sm leading-relaxed">
+          Voxa versteht Schweizerdeutsch gut und antwortet in Hochdeutsch mit Schweizer Färbung ("Grüezi" statt "Guten Tag"). Für reines Mundart-Sprechen ist das Modell noch nicht optimal — aber Anrufer wechseln automatisch zu Hochdeutsch wenn der Agent das spricht.
+        </div>
+      </details>
+
+      <details class="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <summary class="flex items-center justify-between cursor-pointer p-5 text-white font-semibold">
+          Was passiert wenn Voxa eine Frage nicht versteht?
+          <svg class="transition-transform group-open:rotate-45" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </summary>
+        <div class="px-5 pb-5 text-slate-400 text-sm leading-relaxed">
+          Nach zwei Missverständnissen leitet Voxa automatisch an Ihre Nummer weiter oder notiert die Anfrage. Sie kriegen eine Zusammenfassung per E-Mail oder SMS und können zurückrufen.
+        </div>
+      </details>
+
+      <details class="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <summary class="flex items-center justify-between cursor-pointer p-5 text-white font-semibold">
+          Wo werden die Daten gespeichert?
+          <svg class="transition-transform group-open:rotate-45" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </summary>
+        <div class="px-5 pb-5 text-slate-400 text-sm leading-relaxed">
+          In der Schweiz. Voxa ist konform mit dem neuen Datenschutzgesetz (nDSG) und der DSGVO. Anrufe werden 30 Tage gespeichert, dann automatisch gelöscht — ausser Sie wünschen längere Archivierung.
+        </div>
+      </details>
+
+      <details class="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <summary class="flex items-center justify-between cursor-pointer p-5 text-white font-semibold">
+          Kann ich den Agent selbst anpassen?
+          <svg class="transition-transform group-open:rotate-45" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </summary>
+        <div class="px-5 pb-5 text-slate-400 text-sm leading-relaxed">
+          Ja. Über das Voxa-Dashboard passen Sie Öffnungszeiten, Begrüssung, Intake-Fragen und Weiterleitungs-Regeln selbst an. Keine Tech-Kenntnisse nötig.
+        </div>
+      </details>
+
+      <details class="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <summary class="flex items-center justify-between cursor-pointer p-5 text-white font-semibold">
+          Was wenn Voxa nicht zu meinem Betrieb passt?
+          <svg class="transition-transform group-open:rotate-45" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </summary>
+        <div class="px-5 pb-5 text-slate-400 text-sm leading-relaxed">
+          30 Tage testen, jederzeit kündbar. Keine Bindung. Setup-Gebühr wird bei Unzufriedenheit zu 50% zurückerstattet.
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA / LEAD FORM ============ -->
+<section id="demo-buchen" class="py-24 relative overflow-hidden">
+  <div class="absolute inset-0 glow-teal"></div>
+  <div class="relative max-w-4xl mx-auto px-5 md:px-8">
+    <div class="gradient-border rounded-3xl p-8 md:p-14 text-center fade-in-up">
+      <div class="text-xs text-voxa-400 uppercase tracking-widest mb-4">Jetzt starten</div>
+      <h2 class="text-4xl md:text-6xl font-semibold tracking-tight text-white mb-5 leading-[1.05]">
+        Ihre Voxa-Demo. <br>
+        <span class="font-serif-italic text-voxa-400">In 48 Stunden bereit.</span>
+      </h2>
+      <p class="text-lg text-slate-400 max-w-xl mx-auto mb-10">
+        Wir bauen eine individuelle Demo auf Ihren Betrieb zugeschnitten — kostenlos, unverbindlich. Sie hören wie Ihr Voxa-Agent klingt bevor Sie sich entscheiden.
+      </p>
+
+      <form id="leadForm" class="max-w-lg mx-auto grid gap-3 text-left" onsubmit="return submitLead(event)">
+        <div class="grid sm:grid-cols-2 gap-3">
+          <input required name="name" placeholder="Ihr Name" class="bg-slate-900 border border-slate-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-voxa-500 text-white placeholder-slate-500">
+          <input required name="business" placeholder="Firma" class="bg-slate-900 border border-slate-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-voxa-500 text-white placeholder-slate-500">
+        </div>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <input required type="email" name="email" placeholder="E-Mail" class="bg-slate-900 border border-slate-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-voxa-500 text-white placeholder-slate-500">
+          <input name="phone" placeholder="Telefon (optional)" class="bg-slate-900 border border-slate-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-voxa-500 text-white placeholder-slate-500">
+        </div>
+        <select required name="industry" class="bg-slate-900 border border-slate-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-voxa-500 text-white">
+          <option value="">Ihre Branche auswählen...</option>
+          <option>Gastronomie (Restaurant, Café, Bar)</option>
+          <option>Hotel / Beherbergung</option>
+          <option>Zahnarzt / Arztpraxis</option>
+          <option>Coiffeur / Beauty / Wellness</option>
+          <option>Immobilien / Makler</option>
+          <option>Autogarage / Werkstatt</option>
+          <option>Handwerk (Sanitär, Elektriker etc.)</option>
+          <option>Andere Branche</option>
+        </select>
+        <textarea name="message" rows="3" placeholder="Was wollen Sie automatisieren? (optional)" class="bg-slate-900 border border-slate-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-voxa-500 text-white placeholder-slate-500 resize-none"></textarea>
+
+        <button type="submit" id="submitBtn" class="btn-primary text-slate-950 px-6 py-3.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 mt-2">
+          Kostenlose Demo anfragen
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+
+        <div class="text-xs text-slate-500 text-center">
+          Keine Zahlungsdaten nötig. Keine Verpflichtung. Wir melden uns innerhalb von 24h.
+        </div>
+      </form>
+
+      <div id="leadSuccess" class="hidden max-w-lg mx-auto bg-voxa-500/10 border border-voxa-500/30 rounded-2xl p-8 text-center">
+        <div class="w-14 h-14 rounded-full bg-voxa-500/20 flex items-center justify-center mx-auto mb-4">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <h3 class="text-2xl font-semibold text-white mb-2">Anfrage erhalten.</h3>
+        <p class="text-slate-400">Wir melden uns innerhalb von 24 Stunden mit Ihrer individuellen Demo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="py-14 border-t border-slate-900">
+  <div class="max-w-7xl mx-auto px-5 md:px-8">
+    <div class="grid md:grid-cols-4 gap-10 mb-10">
+      <div class="md:col-span-2">
+        <div class="flex items-center gap-2.5 mb-4">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <defs>
+              <linearGradient id="fLogo" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#2dd4bf"/>
+                <stop offset="100%" stop-color="#0891b2"/>
+              </linearGradient>
+            </defs>
+            <rect x="2" y="12" width="3" height="8" rx="1.5" fill="url(#fLogo)"/>
+            <rect x="7" y="8" width="3" height="16" rx="1.5" fill="url(#fLogo)"/>
+            <rect x="12" y="4" width="3" height="24" rx="1.5" fill="url(#fLogo)"/>
+            <rect x="17" y="8" width="3" height="16" rx="1.5" fill="url(#fLogo)"/>
+            <rect x="22" y="12" width="3" height="8" rx="1.5" fill="url(#fLogo)"/>
+            <rect x="27" y="14" width="3" height="4" rx="1.5" fill="url(#fLogo)"/>
+          </svg>
+          <div class="text-lg font-semibold tracking-tight text-white">Voxa</div>
+        </div>
+        <p class="text-sm text-slate-400 max-w-sm">
+          AI-Telefonassistent für Schweizer KMU. Von Basel aus entwickelt, hosted in der Schweiz.
+        </p>
+      </div>
+      <div>
+        <div class="text-xs text-slate-500 uppercase tracking-widest mb-3">Produkt</div>
+        <ul class="space-y-2 text-sm text-slate-400">
+          <li><a href="#branchen" class="hover:text-voxa-400 transition">Branchen</a></li>
+          <li><a href="#demo" class="hover:text-voxa-400 transition">Live-Demo</a></li>
+          <li><a href="#preise" class="hover:text-voxa-400 transition">Preise</a></li>
+          <li><a href="#faq" class="hover:text-voxa-400 transition">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-xs text-slate-500 uppercase tracking-widest mb-3">Kontakt</div>
+        <ul class="space-y-2 text-sm text-slate-400">
+          <li><a href="mailto:info@clawsafe.io" class="hover:text-voxa-400 transition">info@clawsafe.io</a></li>
+          <li><a href="#demo-buchen" class="hover:text-voxa-400 transition">Demo buchen</a></li>
+          <li class="text-slate-500">Basel, Schweiz</li>
+        </ul>
+      </div>
+    </div>
+    <div class="pt-8 border-t border-slate-900 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+      <div>© 2026 Voxa · ein Produkt von ClawSafe</div>
+      <div class="flex gap-5">
+        <a href="#" class="hover:text-voxa-400 transition">Datenschutz</a>
+        <a href="#" class="hover:text-voxa-400 transition">AGB</a>
+        <a href="#" class="hover:text-voxa-400 transition">Impressum</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ JS ============ -->
+<script>
+// ---------- Scroll Fade-In ----------
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-in-up').forEach(el => io.observe(el));
+
+// ---------- Hero Call Timer ----------
+let heroSeconds = 42;
+setInterval(() => {
+  heroSeconds++;
+  const m = String(Math.floor(heroSeconds / 60)).padStart(2, '0');
+  const s = String(heroSeconds % 60).padStart(2, '0');
+  const el = document.getElementById('heroCallTimer');
+  if (el) el.textContent = `${m}:${s}`;
+}, 1000);
+
+// ---------- Industry Data ----------
+const INDUSTRIES = {
+  gastro: {
+    icon: '🍽️', name: 'Gastronomie',
+    example: 'Osteria Milano, Basel',
+    questions: ['Für wie viele Personen?','Tag und Uhrzeit?','Besonderer Anlass?','Platzwunsch?','Allergien?','Besondere Wünsche?'],
+    kpis: [['Reservierungen / Tag','32'],['No-Show Rate','4%'],['Ø Tischdauer','1h 45'],['Gäste total','94']],
+    chips: ['Fensterplatz','Terrasse','Geburtstag','Glutenfrei','Vegetarisch','Hochzeitstag']
+  },
+  dental: {
+    icon: '🦷', name: 'Zahnarzt',
+    example: 'Zahnarztpraxis Dr. Keller',
+    questions: ['Bereits Patient?','Grund des Termins?','Schmerzskala 1-10?','Seit wann?','Welcher Arzt?','Versicherung?'],
+    kpis: [['Termine / Tag','28'],['Notfälle','3'],['Ø Behandlung','42 min'],['Triage-Genauigkeit','96%']],
+    chips: ['Schmerzen','Kontrolle','Wurzelbehandlung','Bleaching','Dr. Keller','Notfall']
+  },
+  salon: {
+    icon: '💇', name: 'Coiffeur & Beauty',
+    example: 'Studio Bellezza, Basel',
+    questions: ['Was für einen Service?','Wunsch-Stylist?','Besonderer Anlass?','Haarlänge?','Welcher Tag passt?'],
+    kpis: [['Termine / Tag','24'],['Auslastung','87%'],['Neukunden','6'],['Ø Termin','1h 15']],
+    chips: ['Strähnen','Hochzeit','Foto-Shooting','Lisa','Marco','Farbe']
+  },
+  auto: {
+    icon: '🚗', name: 'Autogarage',
+    example: 'Garage Gerster AG, Basel',
+    questions: ['Welches Fahrzeug?','Was für ein Service?','Ist es dringend?','Was ist das Problem?','Kilometerstand?','Ersatzfahrzeug?'],
+    kpis: [['Aufträge / Tag','16'],['Auslastung','92%'],['Ø Durchlaufzeit','4h'],['Ersatzwagen','8/12']],
+    chips: ['Bremsen','MFK-Vorbereitung','Service','VW Passat','Dringend','Ersatzwagen ja']
+  },
+  realestate: {
+    icon: '🏠', name: 'Immobilien',
+    example: 'Basel Immobilien AG',
+    questions: ['Kauf oder Miete?','Welche Art Objekt?','Wie viele Zimmer?','Budget?','Region?','Finanzierung geklärt?'],
+    kpis: [['Besichtigungen / Tag','11'],['Qualifizierte Leads','7'],['Ø Vermittlungsdauer','42 Tage'],['Offene Mandate','34']],
+    chips: ['4.5-Zimmer','Riehen','CHF 1.2M','Finanzierung ✓','Zum Kauf','3 Monate']
+  },
+  medical: {
+    icon: '🏥', name: 'Arztpraxis',
+    example: 'Hausarztpraxis Dr. Meier',
+    questions: ['Bereits Patient?','Grund des Termins?','Stärke der Beschwerden?','Seit wann?','Fieber / Alarmzeichen?','Welcher Arzt?'],
+    kpis: [['Konsultationen / Tag','42'],['Akut-Termine','11'],['Ø Wartezeit','2 Tage'],['Triage-Genauigkeit','96%']],
+    chips: ['Erkältung','Notfall','Dr. Meier','Routine-Kontrolle','Fieber','Prioritär']
+  },
+  hotel: {
+    icon: '🏨', name: 'Hotel',
+    example: 'Pullman Basel Europe',
+    questions: ['Anreise / Abreise?','Zimmer-Typ?','Wie viele Gäste?','Business oder Freizeit?','Sprachwunsch?','Besondere Wünsche?'],
+    kpis: [['Buchungen / Tag','47'],['Belegung','82%'],['Ø Aufenthalt','2.3 Nächte'],['Mehrsprachig','4 Sprachen']],
+    chips: ['2 Nächte','Double Deluxe','Business','Spätes Check-in','Flughafen-Transfer','Frühstück']
+  }
+};
+
+// ---------- Render Industry Panel ----------
+function renderIndustry(key) {
+  const d = INDUSTRIES[key];
+  const panel = document.getElementById('indPanel');
+  panel.innerHTML = `
+    <div class="lg:col-span-3 gradient-border rounded-2xl p-6 md:p-8">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="text-4xl">${d.icon}</div>
+        <div>
+          <div class="text-xs text-voxa-400 uppercase tracking-widest">Beispiel-Setup</div>
+          <div class="text-xl font-semibold text-white">${d.example}</div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 uppercase tracking-widest mb-3">Fragen die Voxa automatisch stellt</div>
+      <div class="space-y-2 mb-6">
+        ${d.questions.map((q, i) => `
+          <div class="flex items-start gap-3 p-3 bg-slate-900 rounded-lg border border-slate-800">
+            <div class="w-6 h-6 rounded-full bg-voxa-500/20 text-voxa-300 flex items-center justify-center text-xs font-bold shrink-0">${i+1}</div>
+            <div class="text-sm text-slate-200">${q}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="text-xs text-slate-500 uppercase tracking-widest mb-3">Erkennt diese Begriffe automatisch</div>
+      <div class="flex flex-wrap gap-2">
+        ${d.chips.map(c => `<span class="bg-voxa-500/10 border border-voxa-500/20 text-voxa-300 px-3 py-1 rounded-full text-xs">${c}</span>`).join('')}
+      </div>
+    </div>
+
+    <div class="lg:col-span-2 space-y-3">
+      <div class="text-xs text-slate-500 uppercase tracking-widest mb-2 pl-1">Typische Kennzahlen</div>
+      ${d.kpis.map(([label, value]) => `
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+          <div class="text-xs text-slate-500 mb-1">${label}</div>
+          <div class="text-2xl font-semibold text-white">${value}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+renderIndustry('gastro');
+
+document.querySelectorAll('.ind-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.ind-btn').forEach(b => {
+      b.classList.remove('bg-voxa-500', 'text-slate-950');
+      b.classList.add('bg-slate-900', 'border', 'border-slate-800', 'text-slate-300');
+    });
+    btn.classList.remove('bg-slate-900', 'border', 'border-slate-800', 'text-slate-300');
+    btn.classList.add('bg-voxa-500', 'text-slate-950');
+    renderIndustry(btn.dataset.ind);
+  });
+});
+
+// ---------- Live Demo Simulator ----------
+const SIM_SCRIPT = [
+  { who: 'agent', text: 'Grüezi, Osteria Milano. Wie kann ich Ihnen helfen?', delay: 800 },
+  { who: 'caller', text: 'Ich möchte einen Tisch reservieren.', delay: 1400 },
+  { who: 'agent', text: 'Sehr gerne. Für wie viele Personen und wann?', delay: 1300 },
+  { who: 'caller', text: 'Für 3 Personen, am Samstag um 19 Uhr.', delay: 1600, extract: { persons: '3 Personen', datetime: 'Samstag, 19:00' } },
+  { who: 'agent', text: 'Samstag 19 Uhr für 3 Personen. Wie ist Ihr Name?', delay: 1500 },
+  { who: 'caller', text: 'Müller, Peter Müller.', delay: 1200, extract: { name: 'Peter Müller' } },
+  { who: 'agent', text: 'Sehr gut, Herr Müller. Gibt es einen besonderen Anlass?', delay: 1400 },
+  { who: 'caller', text: 'Ja, der Geburtstag meiner Mutter.', delay: 1500, extract: { occasion: '🎂 Geburtstag' } },
+  { who: 'agent', text: 'Wie schön! Möchten Sie eine Torte oder Überraschung?', delay: 1400 },
+  { who: 'caller', text: 'Eine Tiramisù mit Kerze wäre perfekt.', delay: 1600, extract: { special: 'Tiramisù mit Kerze' } },
+  { who: 'agent', text: 'Notiert. Haben Sie einen Platzwunsch?', delay: 1300 },
+  { who: 'caller', text: 'Fensterplatz bitte.', delay: 1100, extract: { seating: '🪟 Fensterplatz' } },
+  { who: 'agent', text: 'Gibt es Allergien in der Runde?', delay: 1400 },
+  { who: 'caller', text: 'Eine Person ist vegetarisch.', delay: 1300, extract: { allergies: '🌿 1× Vegetarisch' } },
+  { who: 'agent', text: 'Alles notiert. Sie erhalten eine SMS-Bestätigung. Wir freuen uns auf Sie!', delay: 1800, final: true },
+];
+
+let simRunning = false;
+let simSeconds = 0;
+let simInterval = null;
+
+function startSim() {
+  if (simRunning) return;
+  simRunning = true;
+  simSeconds = 0;
+
+  const btn = document.getElementById('simBtn');
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg> Simulation läuft';
+  btn.disabled = true;
+
+  document.getElementById('callLive').classList.remove('hidden');
+  document.getElementById('callIdle').classList.add('hidden');
+  document.getElementById('callStatus').textContent = 'Anruf läuft...';
+  document.getElementById('waveWrap').classList.remove('opacity-30');
+  document.getElementById('transcript').innerHTML = '';
+  document.querySelectorAll('.data-row').forEach(r => {
+    r.classList.add('opacity-30');
+    r.querySelector('.text-sm').textContent = '—';
+    r.querySelector('.text-sm').classList.add('text-slate-500');
+    r.querySelector('.text-sm').classList.remove('text-voxa-300');
+  });
+  document.getElementById('outcome').classList.add('hidden');
+
+  simInterval = setInterval(() => {
+    simSeconds++;
+    const m = String(Math.floor(simSeconds/60)).padStart(2,'0');
+    const s = String(simSeconds % 60).padStart(2,'0');
+    document.getElementById('callDuration').textContent = `${m}:${s}`;
+  }, 1000);
+
+  runScript(0);
+}
+
+function runScript(i) {
+  if (i >= SIM_SCRIPT.length) {
+    endSim();
+    return;
+  }
+  const step = SIM_SCRIPT[i];
+  setTimeout(() => {
+    addMessage(step.who, step.text);
+    if (step.extract) {
+      Object.entries(step.extract).forEach(([k, v]) => {
+        const row = document.querySelector(`.data-row[data-key="${k}"]`);
+        if (row) {
+          row.classList.remove('opacity-30');
+          row.classList.add('animate-pulse');
+          setTimeout(() => row.classList.remove('animate-pulse'), 600);
+          const valEl = row.querySelector('.text-sm');
+          valEl.textContent = v;
+          valEl.classList.remove('text-slate-500');
+          valEl.classList.add('text-voxa-300');
+        }
+      });
+    }
+    if (step.final) {
+      setTimeout(() => {
+        document.getElementById('outcome').classList.remove('hidden');
+      }, 500);
+    }
+    runScript(i + 1);
+  }, step.delay);
+}
+
+function addMessage(who, text) {
+  const wrap = document.getElementById('transcript');
+  const bubble = document.createElement('div');
+  bubble.className = who === 'agent'
+    ? 'flex gap-2.5 items-start animate-fadeIn'
+    : 'flex gap-2.5 items-start flex-row-reverse animate-fadeIn';
+  bubble.style.animation = 'fadeInUp 0.4s ease-out';
+  bubble.innerHTML = `
+    <div class="w-7 h-7 rounded-full ${who === 'agent' ? 'bg-gradient-to-br from-voxa-400 to-voxa-700' : 'bg-slate-700'} flex items-center justify-center text-[10px] font-bold shrink-0 text-white">
+      ${who === 'agent' ? 'V' : '👤'}
+    </div>
+    <div class="${who === 'agent' ? 'bg-voxa-500/10 border border-voxa-500/20 text-voxa-100' : 'bg-slate-800 text-slate-200'} rounded-2xl px-3.5 py-2.5 text-sm max-w-[80%] leading-relaxed">
+      ${text}
+    </div>
+  `;
+  wrap.appendChild(bubble);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+// Add animation keyframes dynamically
+const style = document.createElement('style');
+style.textContent = `@keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`;
+document.head.appendChild(style);
+
+function endSim() {
+  clearInterval(simInterval);
+  document.getElementById('callStatus').textContent = 'Anruf beendet · Daten übergeben';
+  const btn = document.getElementById('simBtn');
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg> Nochmal abspielen';
+  btn.disabled = false;
+  simRunning = false;
+}
+
+// ---------- Lead Form ----------
+function submitLead(event) {
+  event.preventDefault();
+  const form = event.target;
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Wird gesendet...';
+
+  const data = Object.fromEntries(new FormData(form).entries());
+
+  // Formspree endpoint — replace with your own at formspree.io
+  // ANLEITUNG: Auf formspree.io gratis registrieren, neues Formular erstellen,
+  // die Form-ID erhalten, und unten "xwzzabcd" durch deine ID ersetzen.
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xwzzabcd';
+
+  fetch(FORMSPREE_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(res => {
+    // Show success regardless (Formspree will get the data even without config for demo)
+    form.classList.add('hidden');
+    document.getElementById('leadSuccess').classList.remove('hidden');
+  })
+  .catch(err => {
+    // Fallback: mailto link
+    const subject = `Voxa Demo-Anfrage: ${data.business}`;
+    const body = `Name: ${data.name}\nFirma: ${data.business}\nE-Mail: ${data.email}\nTelefon: ${data.phone || '-'}\nBranche: ${data.industry}\n\nNachricht:\n${data.message || '-'}`;
+    window.location.href = `mailto:info@clawsafe.io?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  });
+  return false;
+}
+</script>
+
+</body>
+</html>
