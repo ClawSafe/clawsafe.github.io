@@ -1190,12 +1190,11 @@ function submitLead(event) {
     body: JSON.stringify(data)
   })
   .then(res => {
-    // Show success regardless (Formspree will get the data even without config for demo)
+    if (!res.ok) throw new Error('Formspree not configured');
     form.classList.add('hidden');
     document.getElementById('leadSuccess').classList.remove('hidden');
   })
   .catch(err => {
-    // Fallback: mailto link
     const subject = `Voxa Demo-Anfrage: ${data.business}`;
     const body = `Name: ${data.name}\nFirma: ${data.business}\nE-Mail: ${data.email}\nTelefon: ${data.phone || '-'}\nBranche: ${data.industry}\n\nNachricht:\n${data.message || '-'}`;
     window.location.href = `mailto:info@clawsafe.io?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
