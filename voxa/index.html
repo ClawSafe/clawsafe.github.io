@@ -144,6 +144,13 @@ tailwind.config = {
   /* Checkbox */
   input[type="checkbox"] { accent-color: #14b8a6; }
 
+  /* FAQ accordion */
+  .faq-item { transition: background 0.2s; }
+  .faq-item[data-open="true"] .faq-answer { max-height: 500px; opacity: 1; padding-bottom: 1.25rem; }
+  .faq-item[data-open="true"] .faq-icon { transform: rotate(45deg); }
+  .faq-answer { max-height: 0; opacity: 0; overflow: hidden; padding-bottom: 0; transition: max-height 0.3s ease, opacity 0.3s ease, padding-bottom 0.3s ease; }
+  .faq-icon { transition: transform 0.25s ease; }
+
   /* Scroll bar for transcript */
   .thin-scroll::-webkit-scrollbar { width: 4px; }
   .thin-scroll::-webkit-scrollbar-track { background: #1e293b; }
@@ -744,65 +751,65 @@ tailwind.config = {
     </div>
 
     <div class="space-y-3 fade-in-up">
-      <details class="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-        <summary class="flex items-center justify-between cursor-pointer p-5 text-white font-semibold">
-          Wie lange dauert die Einrichtung?
-          <svg class="transition-transform group-open:rotate-45" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-        </summary>
-        <div class="px-5 pb-5 text-slate-400 text-sm leading-relaxed">
+      <div class="faq-item bg-slate-900 border border-slate-800 rounded-xl overflow-hidden" data-open="false">
+        <button type="button" class="faq-trigger w-full flex items-center justify-between p-5 text-white font-semibold text-left">
+          <span>Wie lange dauert die Einrichtung?</span>
+          <svg class="faq-icon shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="faq-answer px-5 text-slate-400 text-sm leading-relaxed">
           Typisch 48 Stunden. Sie senden uns Ihre Öffnungszeiten, häufigsten Fragen und Branchen-Besonderheiten. Wir konfigurieren den Agent, Sie testen, wir gehen live.
         </div>
-      </details>
+      </div>
 
-      <details class="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-        <summary class="flex items-center justify-between cursor-pointer p-5 text-white font-semibold">
-          Kann Voxa Schweizerdeutsch?
-          <svg class="transition-transform group-open:rotate-45" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-        </summary>
-        <div class="px-5 pb-5 text-slate-400 text-sm leading-relaxed">
+      <div class="faq-item bg-slate-900 border border-slate-800 rounded-xl overflow-hidden" data-open="false">
+        <button type="button" class="faq-trigger w-full flex items-center justify-between p-5 text-white font-semibold text-left">
+          <span>Kann Voxa Schweizerdeutsch?</span>
+          <svg class="faq-icon shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="faq-answer px-5 text-slate-400 text-sm leading-relaxed">
           Voxa versteht Schweizerdeutsch gut und antwortet in Hochdeutsch mit Schweizer Färbung ("Grüezi" statt "Guten Tag"). Für reines Mundart-Sprechen ist das Modell noch nicht optimal — aber Anrufer wechseln automatisch zu Hochdeutsch wenn der Agent das spricht.
         </div>
-      </details>
+      </div>
 
-      <details class="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-        <summary class="flex items-center justify-between cursor-pointer p-5 text-white font-semibold">
-          Was passiert wenn Voxa eine Frage nicht versteht?
-          <svg class="transition-transform group-open:rotate-45" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-        </summary>
-        <div class="px-5 pb-5 text-slate-400 text-sm leading-relaxed">
+      <div class="faq-item bg-slate-900 border border-slate-800 rounded-xl overflow-hidden" data-open="false">
+        <button type="button" class="faq-trigger w-full flex items-center justify-between p-5 text-white font-semibold text-left">
+          <span>Was passiert wenn Voxa eine Frage nicht versteht?</span>
+          <svg class="faq-icon shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="faq-answer px-5 text-slate-400 text-sm leading-relaxed">
           Nach zwei Missverständnissen leitet Voxa automatisch an Ihre Nummer weiter oder notiert die Anfrage. Sie kriegen eine Zusammenfassung per E-Mail oder SMS und können zurückrufen.
         </div>
-      </details>
+      </div>
 
-      <details class="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-        <summary class="flex items-center justify-between cursor-pointer p-5 text-white font-semibold">
-          Wo werden die Daten gespeichert?
-          <svg class="transition-transform group-open:rotate-45" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-        </summary>
-        <div class="px-5 pb-5 text-slate-400 text-sm leading-relaxed">
+      <div class="faq-item bg-slate-900 border border-slate-800 rounded-xl overflow-hidden" data-open="false">
+        <button type="button" class="faq-trigger w-full flex items-center justify-between p-5 text-white font-semibold text-left">
+          <span>Wo werden die Daten gespeichert?</span>
+          <svg class="faq-icon shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="faq-answer px-5 text-slate-400 text-sm leading-relaxed">
           In der Schweiz. Voxa ist konform mit dem neuen Datenschutzgesetz (nDSG) und der DSGVO. Anrufe werden 30 Tage gespeichert, dann automatisch gelöscht — ausser Sie wünschen längere Archivierung.
         </div>
-      </details>
+      </div>
 
-      <details class="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-        <summary class="flex items-center justify-between cursor-pointer p-5 text-white font-semibold">
-          Kann ich den Agent selbst anpassen?
-          <svg class="transition-transform group-open:rotate-45" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-        </summary>
-        <div class="px-5 pb-5 text-slate-400 text-sm leading-relaxed">
+      <div class="faq-item bg-slate-900 border border-slate-800 rounded-xl overflow-hidden" data-open="false">
+        <button type="button" class="faq-trigger w-full flex items-center justify-between p-5 text-white font-semibold text-left">
+          <span>Kann ich den Agent selbst anpassen?</span>
+          <svg class="faq-icon shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="faq-answer px-5 text-slate-400 text-sm leading-relaxed">
           Ja. Über das Voxa-Dashboard passen Sie Öffnungszeiten, Begrüssung, Intake-Fragen und Weiterleitungs-Regeln selbst an. Keine Tech-Kenntnisse nötig.
         </div>
-      </details>
+      </div>
 
-      <details class="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-        <summary class="flex items-center justify-between cursor-pointer p-5 text-white font-semibold">
-          Was wenn Voxa nicht zu meinem Betrieb passt?
-          <svg class="transition-transform group-open:rotate-45" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-        </summary>
-        <div class="px-5 pb-5 text-slate-400 text-sm leading-relaxed">
+      <div class="faq-item bg-slate-900 border border-slate-800 rounded-xl overflow-hidden" data-open="false">
+        <button type="button" class="faq-trigger w-full flex items-center justify-between p-5 text-white font-semibold text-left">
+          <span>Was wenn Voxa nicht zu meinem Betrieb passt?</span>
+          <svg class="faq-icon shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="faq-answer px-5 text-slate-400 text-sm leading-relaxed">
           30 Tage testen, jederzeit kündbar. Keine Bindung. Setup-Gebühr wird bei Unzufriedenheit zu 50% zurückerstattet.
         </div>
-      </details>
+      </div>
     </div>
   </div>
 </section>
@@ -1169,36 +1176,89 @@ function endSim() {
   simRunning = false;
 }
 
+// ---------- FAQ Accordion ----------
+document.querySelectorAll('.faq-trigger').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.getAttribute('data-open') === 'true';
+    item.setAttribute('data-open', isOpen ? 'false' : 'true');
+  });
+});
+
 // ---------- Lead Form ----------
+// CONFIG: Set to your real Formspree ID once configured at formspree.io
+// Current value is a placeholder — form will fallback to mailto.
+const FORMSPREE_ID = 'xwzzabcd';  // TODO: replace with real ID
+const CONTACT_EMAIL = 'info@clawsafe.io';  // TODO: confirm this is correct
+
 function submitLead(event) {
   event.preventDefault();
   const form = event.target;
   const btn = document.getElementById('submitBtn');
+  const originalBtnHTML = btn.innerHTML;
   btn.disabled = true;
-  btn.innerHTML = '<svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Wird gesendet...';
+  btn.innerHTML = '<svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Wird gesendet...';
 
   const data = Object.fromEntries(new FormData(form).entries());
 
-  // Formspree endpoint — replace with your own at formspree.io
-  // ANLEITUNG: Auf formspree.io gratis registrieren, neues Formular erstellen,
-  // die Form-ID erhalten, und unten "xwzzabcd" durch deine ID ersetzen.
-  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xwzzabcd';
+  const showSuccess = () => {
+    form.classList.add('hidden');
+    document.getElementById('leadSuccess').classList.remove('hidden');
+    document.getElementById('leadSuccess').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
 
-  fetch(FORMSPREE_ENDPOINT, {
+  const showError = (msg) => {
+    btn.disabled = false;
+    btn.innerHTML = originalBtnHTML;
+    alert(msg);
+  };
+
+  const fallbackMailto = () => {
+    const subject = `Voxa Demo-Anfrage: ${data.business || data.name || 'Neue Anfrage'}`;
+    const body = [
+      `Name: ${data.name || '-'}`,
+      `Firma: ${data.business || '-'}`,
+      `E-Mail: ${data.email || '-'}`,
+      `Telefon: ${data.phone || '-'}`,
+      `Branche: ${data.industry || '-'}`,
+      '',
+      'Nachricht:',
+      data.message || '-'
+    ].join('\n');
+    const mailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
+    // Show success optimistically — even if mail client doesn't open, user has the data
+    setTimeout(showSuccess, 300);
+  };
+
+  // Detect placeholder — skip Formspree if not configured
+  const isPlaceholder = FORMSPREE_ID === 'xwzzabcd' || FORMSPREE_ID.length < 8;
+  if (isPlaceholder) {
+    console.info('Formspree not configured — using mailto fallback');
+    fallbackMailto();
+    return false;
+  }
+
+  // Real Formspree submission
+  fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
     method: 'POST',
     headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   })
   .then(res => {
-    if (!res.ok) throw new Error('Formspree not configured');
-    form.classList.add('hidden');
-    document.getElementById('leadSuccess').classList.remove('hidden');
+    if (res.ok) {
+      showSuccess();
+    } else {
+      // Formspree returned error — use mailto as safety net
+      console.warn('Formspree error', res.status);
+      fallbackMailto();
+    }
   })
   .catch(err => {
-    const subject = `Voxa Demo-Anfrage: ${data.business}`;
-    const body = `Name: ${data.name}\nFirma: ${data.business}\nE-Mail: ${data.email}\nTelefon: ${data.phone || '-'}\nBranche: ${data.industry}\n\nNachricht:\n${data.message || '-'}`;
-    window.location.href = `mailto:info@clawsafe.io?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    console.warn('Network error', err);
+    fallbackMailto();
   });
+
   return false;
 }
 </script>
